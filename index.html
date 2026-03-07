@@ -206,7 +206,8 @@
 
 <script>
     const CLAVE_SEGURIDAD = "123";
-    let dbHistorial = JSON.parse(localStorage.getItem('meteo_avisos_db')) || {};
+    // --- CLAVE ÚNICA PARA APOYOS ---
+    let dbHistorial = JSON.parse(localStorage.getItem('meteo_apoyos_db')) || {};
     let anioActual = "2026";
     let miGrafico;
 
@@ -217,8 +218,8 @@
     window.onload = function() {
         anioActual = document.getElementById("inputAnio").value;
         for(let i=1; i<=4; i++) {
-            document.getElementById(`f_izq_${i}`).value = localStorage.getItem(`f_izq_avisos_${i}`) || "";
-            document.getElementById(`f_der_${i}`).value = localStorage.getItem(`f_der_avisos_${i}`) || "";
+            document.getElementById(`f_izq_${i}`).value = localStorage.getItem(`f_izq_apoyos_${i}`) || "";
+            document.getElementById(`f_der_${i}`).value = localStorage.getItem(`f_der_apoyos_${i}`) || "";
         }
         inicializarGrafico();
         actualizarInterfaz();
@@ -250,12 +251,14 @@
         });
     }
 
-    function guardarEnDB() { localStorage.setItem('meteo_avisos_db', JSON.stringify(dbHistorial)); }
+    function guardarEnDB() { 
+        localStorage.setItem('meteo_apoyos_db', JSON.stringify(dbHistorial)); 
+    }
     
     function guardarFirmas() {
         for(let i=1; i<=4; i++) {
-            localStorage.setItem(`f_izq_avisos_${i}`, document.getElementById(`f_izq_${i}`).value);
-            localStorage.setItem(`f_der_avisos_${i}`, document.getElementById(`f_der_${i}`).value);
+            localStorage.setItem(`f_izq_apoyos_${i}`, document.getElementById(`f_izq_${i}`).value);
+            localStorage.setItem(`f_der_apoyos_${i}`, document.getElementById(`f_der_${i}`).value);
         }
     }
 
