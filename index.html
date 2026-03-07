@@ -63,25 +63,32 @@
             margin-bottom: 15px;
         }
 
-        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 1.5px solid #000; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 1.5px solid #000; }
         th { background: #f2f2f2; color: #000; padding: 8px 4px; font-size: 0.8rem; border: 1.5px solid #000; font-weight: 900; }
         td { padding: 4px; border: 1.5px solid #000; text-align: center; font-size: 0.9rem; color: #000; font-weight: 700; }
         
         .ship-name { text-align: left; font-weight: 900; padding-left: 10px; width: 180px; color: #000; }
-        .total-mensual-row { background: #f2f2f2 !important; color: #000 !important; font-weight: 900; }
+        
+        /* AJUSTE SOLICITADO: Reducción de altura en fila de totales */
+        .total-mensual-row td { 
+            background: #f2f2f2 !important; 
+            padding: 2px 4px !important; 
+            font-size: 0.85rem !important;
+        }
 
         .resaltado-total {
             background: #fff !important;
             color: #000 !important;
-            font-size: 1.3rem !important;
+            font-size: 1.2rem !important;
             font-weight: 900 !important;
             border: 3px double #000 !important;
+            padding: 2px !important;
         }
 
-        .chart-container { height: 180px; margin-top: 10px; padding: 10px; border: 1.5px solid #000; border-radius: 8px; background: #fff; }
+        .chart-container { height: 180px; margin-top: 5px; padding: 10px; border: 1.5px solid #000; border-radius: 8px; background: #fff; }
 
         .firma-container { 
-            margin-top: 100px; 
+            margin-top: 60px; 
             display: flex; 
             justify-content: space-around; 
         }
@@ -102,21 +109,19 @@
 
         .footer-autor {
             text-align: center;
-            padding: 20px;
-            margin-top: 10px;
-            font-size: 1rem;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 0.9rem;
             color: var(--navy-primary); 
             font-weight: 800; 
-            letter-spacing: 0.5px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
         }
 
         @media print {
             @page { size: letter landscape; margin: 0.5cm; }
             body { padding: 0; color: #000; background-color: white; }
-            .container { box-shadow: none; padding: 0; width: 100%; border-top: none; }
+            .container { box-shadow: none; padding: 10px; width: 100%; border-top: none; }
             .toolbar, .no-print, .footer-autor { display: none !important; }
-            .firma-container { margin-top: 120px !important; break-inside: avoid; }
+            .firma-container { margin-top: 75px !important; break-inside: avoid; }
             .input-firma { border: none !important; }
             .input-firma:placeholder-shown { display: none !important; }
             .bloque-firma:has(.input-firma[id$="_1"]:placeholder-shown) .linea-firma {
@@ -163,15 +168,15 @@
         <tbody id="cuerpoTabla"></tbody>
         <tfoot>
             <tr class="total-mensual-row">
-                <td style="text-align: right; padding-right:10px;">TOTAL APOYOS MENSUAL:</td>
+                <td style="text-align: right; padding-right:10px; font-weight: 900;">TOTAL APOYOS MENSUAL:</td>
                 <td id="tm1">0</td><td id="tm2">0</td><td id="tm3">0</td><td id="tm4">0</td>
                 <td id="tm5">0</td><td id="tm6">0</td><td id="tm7">0</td><td id="tm8">0</td>
                 <td id="tm9">0</td><td id="tm10">0</td><td id="tm11">0</td><td id="tm12">0</td>
-                <td id="totalFinalSumado">0</td>
+                <td id="totalFinalSumado" style="font-weight: 900;">0</td>
                 <td class="no-print"></td>
             </tr>
             <tr>
-                <td colspan="13" style="text-align: right; padding-right: 15px; font-weight:900; border:none; padding-top:10px;">TOTAL ANUAL GENERADO:</td>
+                <td colspan="13" style="text-align: right; padding-right: 15px; font-weight:900; border:none; padding-top:5px; font-size: 0.85rem;">TOTAL ANUAL GENERADO:</td>
                 <td id="totalAnualResalte" class="resaltado-total">0</td>
                 <td class="no-print" style="border:none;"></td>
             </tr>
@@ -206,7 +211,6 @@
 
 <script>
     const CLAVE_SEGURIDAD = "123";
-    // --- CLAVE ÚNICA PARA APOYOS ---
     let dbHistorial = JSON.parse(localStorage.getItem('meteo_apoyos_db')) || {};
     let anioActual = "2026";
     let miGrafico;
