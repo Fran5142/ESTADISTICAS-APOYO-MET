@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadística Naval - Centro Meteorológico</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        :root {
+            --navy-primary: #002147;
+            --bg-gray: #f4f7f6;
+            --white: #ffffff;
+            --accent-gold: #c5a059;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            padding: 10px;
+            color: #000;
+        }
+
+        .container { 
+            max-width: 1150px; 
+            margin: 0 auto; 
+            background: var(--white); 
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-top: 6px solid var(--navy-primary);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+
+        .title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .logo-naval { height: 100px; width: auto; }
+
+        header h1 { margin: 0; color: #000; text-transform: uppercase; font-size: 1.5rem; letter-spacing: 1px; }
+        header p { margin: 2px 0 0 0; font-weight: 700; color: #000; font-size: 0.95rem; }
+
+        .toolbar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--navy-primary); padding: 10px 15px; border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 1.5px solid #000; }
+        th { background: #f2f2f2; color: #000; padding: 8px 4px; font-size: 0.8rem; border: 1.5px solid #000; font-weight: 900; }
+        td { padding: 4px; border: 1.5px solid #000; text-align: center; font-size: 0.9rem; color: #000; font-weight: 700; }
+        
+        .ship-name { text-align: left; font-weight: 900; padding-left: 10px; width: 180px; color: #000; }
+        .total-mensual-row { background: #f2f2f2 !important; color: #000 !important; font-weight: 900; }
+
+        .resaltado-total {
+            background: #fff !important;
+            color: #000 !important;
+            font-size: 1.3rem !important;
+            font-weight: 900 !important;
+            border: 3px double #000 !important;
+        }
+
+        .chart-container { height: 180px; margin-top: 10px; padding: 10px; border: 1.5px solid #000; border-radius: 8px; background: #fff; }
+
+        .firma-container { 
+            margin-top: 30px; 
+            display: flex; 
+            justify-content: space-around; 
+        }
+        .bloque-firma { display: flex; flex-direction: column; align-items: center; width: 350px; }
+        .linea-firma { width: 250px; border-top: 2px solid #000; margin-bottom: 5px; }
+        
+        .input-firma { 
+            border: 1px dashed #ccc; 
+            background: #fff; 
+            text-align: center; 
+            width: 100%; 
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            margin-bottom: 2px;
+            padding: 2px;
+            color: #000; 
+        }
+
+        @media print {
+            @page { size: letter landscape; margin: 0.5cm; }
+            body { padding: 0; color: #000; }
+            .container { box-shadow: none; padding: 0; width: 100%; border-top: none; }
+            .toolbar, .no-print { display: none !important; }
+            .firma-container { margin-top: 100px !important; break-inside: avoid; }
+            .input-firma { border: none !important; }
+            .input-firma:placeholder-shown { display: none !important; }
+            .bloque-firma:has(.input-firma[id$="_1"]:placeholder-shown) .linea-firma {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="title-container">
+            <img src="https://dn721908.ca.archive.org/0/items/imagen_mejorada_3D/LOGO%20METEOPMO.png" alt="Logo MeteoPMO" class="logo-naval">
+            <h1 id="mainTitle">ESTADÍSTICA DE APOYOS METEOROLÓGICOS AÑO 2026</h1>
+        </div>
+        <p>Centro Zonal de Meteorología Marina de Puerto Montt</p>
+    </header>
+
+    <div class="toolbar no-print">
+        <div class="input-group">
+            <input type="number" id="inputAnio" style="width: 70px; font-weight: bold;" value="2026" onchange="cambiarAnio()">
+            <input type="text" id="nombreBuque" placeholder="Nombre Unidad" style="width: 200px;">
+            <button style="background: var(--accent-gold); padding: 8px; font-weight: bold; cursor:pointer;" onclick="agregarBuque()">+ Registrar</button>
+        </div>
+        <div class="input-group">
+            <button style="background: #27ae60; color: white; padding: 8px; cursor:pointer;" onclick="exportarBackup()">💾 Guardar</button>
+            <button style="background: #7f8c8d; color: white; padding: 8px; cursor:pointer;" onclick="document.getElementById('fileIn').click()">📂 Cargar</button>
+            <input type="file" id="fileIn" style="display:none" onchange="importarBackup(event)">
+            <button style="background: #34495e; color: white; padding: 8px; font-weight: bold; cursor:pointer;" onclick="window.print()">🖨️ Generar PDF</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Unidad / Repartición</th>
+                <th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th>
+                <th>Jul</th><th>Ago</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dic</th>
+                <th>Total</th>
+                <th class="no-print">✕</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla"></tbody>
+        <tfoot>
+            <tr class="total-mensual-row">
+                <td style="text-align: right; padding-right:10px;">TOTAL APOYO MENSUAL:</td>
+                <td id="tm1">0</td><td id="tm2">0</td><td id="tm3">0</td><td id="tm4">0</td>
+                <td id="tm5">0</td><td id="tm6">0</td><td id="tm7">0</td><td id="tm8">0</td>
+                <td id="tm9">0</td><td id="tm10">0</td><td id="tm11">0</td><td id="tm12">0</td>
+                <td id="totalFinalSumado">0</td>
+                <td class="no-print"></td>
+            </tr>
+            <tr>
+                <td colspan="13" style="text-align: right; padding-right: 15px; font-weight:900; border:none; padding-top:5px;">TOTAL APOYO ANUAL GENERADO:</td>
+                <td id="totalAnualResalte" class="resaltado-total">0</td>
+                <td class="no-print" style="border:none;"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="chart-container">
+        <canvas id="graficoMensual"></canvas>
+    </div>
+
+    <div class="firma-container">
+        <div class="bloque-firma">
+            <div class="linea-firma"></div>
+            <input type="text" id="f_izq_1" class="input-firma" placeholder="Grado y Nombre" oninput="guardarFirmas()">
+            <input type="text" id="f_izq_2" class="input-firma" placeholder="Cargo" oninput="guardarFirmas()">
+            <input type="text" id="f_izq_3" class="input-firma" placeholder="Repartición" oninput="guardarFirmas()">
+            <input type="text" id="f_izq_4" class="input-firma" placeholder="Mando" oninput="guardarFirmas()">
+        </div>
+        <div class="bloque-firma">
+            <div class="linea-firma"></div>
+            <input type="text" id="f_der_1" class="input-firma" placeholder="Grado y Nombre" oninput="guardarFirmas()">
+            <input type="text" id="f_der_2" class="input-firma" placeholder="Cargo" oninput="guardarFirmas()">
+            <input type="text" id="f_der_3" class="input-firma" placeholder="Repartición" oninput="guardarFirmas()">
+            <input type="text" id="f_der_4" class="input-firma" placeholder="Mando" oninput="guardarFirmas()">
+        </div>
+    </div>
+</div>
+
+<script>
+    const CLAVE_SEGURIDAD = "123";
+    let dbHistorial = JSON.parse(localStorage.getItem('meteo_v24_final')) || {};
+    let anioActual = "2026";
+    let miGrafico;
+
+    const coloresMeses = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#46BFBD', '#F7464A', '#8E44AD', '#27AE60', '#D35400'];
+
+    Chart.register(ChartDataLabels);
+
+    window.onload = function() {
+        anioActual = document.getElementById("inputAnio").value;
+        for(let i=1; i<=4; i++) {
+            document.getElementById(`f_izq_${i}`).value = localStorage.getItem(`f_izq_v24_${i}`) || "";
+            document.getElementById(`f_der_${i}`).value = localStorage.getItem(`f_der_v24_${i}`) || "";
+        }
+        inicializarGrafico();
+        actualizarInterfaz();
+    };
+
+    function inicializarGrafico() {
+        const ctx = document.getElementById('graficoMensual').getContext('2d');
+        miGrafico = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'],
+                datasets: [{ data: Array(12).fill(0), backgroundColor: coloresMeses, borderWidth: 1.5, borderColor: '#000' }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: { padding: { top: 25 } },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end', align: 'top', color: '#000', font: { weight: 'bold', size: 12 },
+                        formatter: (val) => val > 0 ? val : ''
+                    }
+                },
+                scales: { 
+                    y: { beginAtZero: true, ticks: { color: '#000', font: { weight: 'bold' } } },
+                    x: { ticks: { color: '#000', font: { weight: 'bold' } } }
+                }
+            }
+        });
+    }
+
+    function guardarEnDB() { localStorage.setItem('meteo_v24_final', JSON.stringify(dbHistorial)); }
+    
+    function guardarFirmas() {
+        for(let i=1; i<=4; i++) {
+            localStorage.setItem(`f_izq_v24_${i}`, document.getElementById(`f_izq_${i}`).value);
+            localStorage.setItem(`f_der_v24_${i}`, document.getElementById(`f_der_${i}`).value);
+        }
+    }
+
+    function cambiarAnio() { 
+        anioActual = document.getElementById("inputAnio").value; 
+        actualizarInterfaz(); 
+    }
+
+    function actualizarInterfaz() { 
+        // Actualiza el título dinámicamente
+        document.getElementById("mainTitle").innerText = `ESTADÍSTICA DE APOYOS METEOROLÓGICOS AÑO ${anioActual}`;
+        render(); 
+    }
+
+    function agregarBuque() {
+        const input = document.getElementById("nombreBuque");
+        const nombre = input.value.trim().toUpperCase();
+        if (!nombre) return;
+        if (!dbHistorial[anioActual]) dbHistorial[anioActual] = [];
+        dbHistorial[anioActual].push({ nombre: nombre, meses: Array(12).fill(0) });
+        input.value = ""; guardarEnDB(); render();
+    }
+
+    function sumar(idx, m) { dbHistorial[anioActual][idx].meses[m]++; guardarEnDB(); render(); }
+    function restar(idx, m) { 
+        if(dbHistorial[anioActual][idx].meses[m] > 0 && prompt("Clave:") === CLAVE_SEGURIDAD) {
+            dbHistorial[anioActual][idx].meses[m]--; guardarEnDB(); render(); 
+        }
+    }
+    function eliminar(idx) {
+        if(prompt("Clave para eliminar:") === CLAVE_SEGURIDAD) {
+            dbHistorial[anioActual].splice(idx, 1); guardarEnDB(); render();
+        }
+    }
+
+    function exportarBackup() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dbHistorial));
+        const a = document.createElement('a'); a.href = dataStr; a.download = `Estadistica_${anioActual}.json`; a.click();
+    }
+
+    function importarBackup(e) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { dbHistorial = JSON.parse(ev.target.result); guardarEnDB(); actualizarInterfaz(); };
+        reader.readAsText(e.target.files[0]);
+    }
+
+    function render() {
+        const cuerpo = document.getElementById("cuerpoTabla");
+        cuerpo.innerHTML = "";
+        let datos = dbHistorial[anioActual] || [];
+        let sumaMensual = Array(12).fill(0);
+        let granTotal = 0;
+
+        datos.forEach((buque, idx) => {
+            const fila = document.createElement("tr");
+            const totalU = buque.meses.reduce((a, b) => a + b, 0);
+            granTotal += totalU;
+            let celdas = `<td class="ship-name">${buque.nombre}</td>`;
+            buque.meses.forEach((valor, m) => {
+                sumaMensual[m] += valor;
+                celdas += `<td>
+                    <div class="no-print" style="display:flex; justify-content:center; gap:4px;">
+                        <span style="cursor:pointer; color:green" onclick="sumar(${idx},${m})">▲</span>
+                        <span style="cursor:pointer; color:red" onclick="restar(${idx},${m})">▼</span>
+                    </div>
+                    <span style="font-weight:900;">${valor === 0 ? '-' : valor}</span>
+                </td>`;
+            });
+            fila.innerHTML = celdas + `<td style="font-weight:900; background:#f9f9f9">${totalU}</td>
+            <td class="no-print"><button style="background:none; border:none; color:red; cursor:pointer;" onclick="eliminar(${idx})">✕</button></td>`;
+            cuerpo.appendChild(fila);
+        });
+
+        for(let i=0; i<12; i++) document.getElementById(`tm${i+1}`).innerText = sumaMensual[i];
+        document.getElementById("totalFinalSumado").innerText = granTotal;
+        document.getElementById("totalAnualResalte").innerText = granTotal;
+        if (miGrafico) { miGrafico.data.datasets[0].data = sumaMensual; miGrafico.update(); }
+    }
+</script>
+
+</body>
+</html>
