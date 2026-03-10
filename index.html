@@ -46,16 +46,10 @@
             gap: 15px;
         }
 
-        .logo-naval { height: 100px; width: auto; }
+        .logo-naval { height: 80px; width: auto; }
 
         header h1 { margin: 0; color: #000; text-transform: uppercase; font-size: 1.5rem; letter-spacing: 1px; }
-        
-        header p { 
-            margin: 2px 0 0 0; 
-            font-weight: 700; 
-            color: #000; 
-            font-size: 1.3rem; 
-        }
+        header p { margin: 2px 0 0 0; font-weight: 700; color: #000; font-size: 1.2rem; }
 
         .toolbar {
             display: flex; justify-content: space-between; align-items: center;
@@ -63,70 +57,53 @@
             margin-bottom: 15px;
         }
 
-        table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 1.5px solid #000; }
-        th { background: #f2f2f2; color: #000; padding: 8px 4px; font-size: 0.8rem; border: 1.5px solid #000; font-weight: 900; }
-        td { padding: 4px; border: 1.5px solid #000; text-align: center; font-size: 0.9rem; color: #000; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 1.5px solid #000; table-layout: fixed; }
+        th { background: #f2f2f2; color: #000; padding: 6px 2px; font-size: 0.75rem; border: 1.5px solid #000; font-weight: 900; }
+        td { padding: 4px 2px; border: 1.5px solid #000; text-align: center; font-size: 0.85rem; color: #000; font-weight: 700; overflow: hidden; }
         
-        .ship-name { text-align: left; font-weight: 900; padding-left: 10px; width: 180px; color: #000; }
+        .ship-name { text-align: left; font-weight: 900; padding-left: 8px; width: 25%; color: #000; font-size: 0.8rem; }
         
-        /* AJUSTE SOLICITADO: Reducción de altura en fila de totales */
-        .total-mensual-row td { 
-            background: #f2f2f2 !important; 
-            padding: 2px 4px !important; 
-            font-size: 0.85rem !important;
-        }
+        .total-mensual-row td { background: #f2f2f2 !important; padding: 2px !important; font-size: 0.8rem !important; }
 
         .resaltado-total {
             background: #fff !important;
             color: #000 !important;
-            font-size: 1.2rem !important;
+            font-size: 1.1rem !important;
             font-weight: 900 !important;
             border: 3px double #000 !important;
-            padding: 2px !important;
         }
 
-        .chart-container { height: 180px; margin-top: 5px; padding: 10px; border: 1.5px solid #000; border-radius: 8px; background: #fff; }
+        .chart-container { height: 180px; margin-top: 10px; padding: 5px; border: 1.5px solid #000; border-radius: 8px; background: #fff; }
 
-        .firma-container { 
-            margin-top: 60px; 
-            display: flex; 
-            justify-content: space-around; 
-        }
-        .bloque-firma { display: flex; flex-direction: column; align-items: center; width: 350px; }
-        .linea-firma { width: 250px; border-top: 2px solid #000; margin-bottom: 5px; }
+        .firma-container { margin-top: 80px; display: flex; justify-content: space-around; }
+        .bloque-firma { display: flex; flex-direction: column; align-items: center; width: 300px; }
+        .linea-firma { width: 200px; border-top: 1.5px solid #000; margin-bottom: 5px; }
         
         .input-firma { 
-            border: 1px dashed #ccc; 
-            background: #fff; 
-            text-align: center; 
-            width: 100%; 
-            font-size: 0.9rem; 
-            font-weight: 700; 
-            margin-bottom: 2px;
-            padding: 2px;
-            color: #000; 
+            border: 1px dashed #ccc; background: #fff; text-align: center; width: 100%; 
+            font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; padding: 2px; color: #000; 
         }
 
-        .footer-autor {
-            text-align: center;
-            padding: 10px;
-            margin-top: 5px;
-            font-size: 0.9rem;
-            color: var(--navy-primary); 
-            font-weight: 800; 
-        }
+        .footer-autor { text-align: center; padding: 10px; margin-top: 5px; font-size: 0.8rem; color: var(--navy-primary); font-weight: 800; }
 
         @media print {
             @page { size: letter landscape; margin: 0.5cm; }
-            body { padding: 0; color: #000; background-color: white; }
-            .container { box-shadow: none; padding: 10px; width: 100%; border-top: none; }
+            body { padding: 0; background-color: white; zoom: 90%; }
+            .container { box-shadow: none; padding: 0; width: 100%; border-top: none; max-width: none; }
             .toolbar, .no-print, .footer-autor { display: none !important; }
-            .firma-container { margin-top: 75px !important; break-inside: avoid; }
+            .chart-container { height: 150px; break-inside: avoid; }
+            .firma-container { margin-top: 140px !important; break-inside: avoid; }
             .input-firma { border: none !important; }
+            
+            /* Lógica para ocultar firmas vacías */
             .input-firma:placeholder-shown { display: none !important; }
-            .bloque-firma:has(.input-firma[id$="_1"]:placeholder-shown) .linea-firma {
-                display: none !important;
+            .bloque-firma:has(.input-firma[placeholder="Nombre"]:placeholder-shown) {
+                visibility: hidden;
             }
+            
+            table { width: 100% !important; }
+            th, td { font-size: 0.7rem !important; }
+            .ship-name { font-size: 0.75rem !important; }
         }
     </style>
 </head>
@@ -148,8 +125,8 @@
             <button style="background: var(--accent-gold); padding: 8px; font-weight: bold; cursor:pointer;" onclick="agregarBuque()">+ Registrar</button>
         </div>
         <div class="input-group">
-            <button style="background: #27ae60; color: white; padding: 8px; cursor:pointer;" title="Guardar cambios localmente" onclick="exportarBackup()">💾 Guardar JSON</button>
-            <button style="background: #7f8c8d; color: white; padding: 8px; cursor:pointer;" title="Cargar archivo anterior" onclick="document.getElementById('fileIn').click()">📂 Cargar</button>
+            <button style="background: #27ae60; color: white; padding: 8px; cursor:pointer;" onclick="exportarBackup()">💾 Guardar JSON</button>
+            <button style="background: #7f8c8d; color: white; padding: 8px; cursor:pointer;" onclick="document.getElementById('fileIn').click()">📂 Cargar</button>
             <input type="file" id="fileIn" style="display:none" onchange="importarBackup(event)">
             <button style="background: #34495e; color: white; padding: 8px; font-weight: bold; cursor:pointer;" onclick="window.print()">🖨️ Generar PDF</button>
         </div>
@@ -158,11 +135,11 @@
     <table>
         <thead>
             <tr>
-                <th>Unidad / Repartición / Aviso</th>
+                <th style="width: 20%;">Unidad / Repartición / Aviso</th>
                 <th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th>
                 <th>Jul</th><th>Ago</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dic</th>
                 <th>Total</th>
-                <th class="no-print">✕</th>
+                <th class="no-print" style="width: 30px;">✕</th>
             </tr>
         </thead>
         <tbody id="cuerpoTabla"></tbody>
@@ -193,14 +170,14 @@
             <input type="text" id="f_izq_1" class="input-firma" placeholder="Nombre" oninput="guardarFirmas()">
             <input type="text" id="f_izq_2" class="input-firma" placeholder="Grado" oninput="guardarFirmas()">
             <input type="text" id="f_izq_3" class="input-firma" placeholder="Cargo" oninput="guardarFirmas()">
-            <input type="text" id="f_izq_4" class="input-firma" placeholder="Cargo" oninput="guardarFirmas()">
+            <input type="text" id="f_izq_4" class="input-firma" placeholder="Repartición" oninput="guardarFirmas()">
         </div>
         <div class="bloque-firma">
             <div class="linea-firma"></div>
             <input type="text" id="f_der_1" class="input-firma" placeholder="Nombre" oninput="guardarFirmas()">
             <input type="text" id="f_der_2" class="input-firma" placeholder="Grado" oninput="guardarFirmas()">
             <input type="text" id="f_der_3" class="input-firma" placeholder="Cargo" oninput="guardarFirmas()">
-            <input type="text" id="f_der_4" class="input-firma" placeholder="Cargo" oninput="guardarFirmas()">
+            <input type="text" id="f_der_4" class="input-firma" placeholder="Repartición" oninput="guardarFirmas()">
         </div>
     </div>
 </div>
@@ -235,29 +212,26 @@
             type: 'bar',
             data: {
                 labels: ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'],
-                datasets: [{ data: Array(12).fill(0), backgroundColor: coloresMeses, borderWidth: 1.5, borderColor: '#000' }]
+                datasets: [{ data: Array(12).fill(0), backgroundColor: coloresMeses, borderWidth: 1, borderColor: '#000' }]
             },
             options: {
                 maintainAspectRatio: false,
-                layout: { padding: { top: 25 } },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
-                        anchor: 'end', align: 'top', color: '#000', font: { weight: 'bold', size: 12 },
+                        anchor: 'end', align: 'top', color: '#000', font: { weight: 'bold', size: 10 },
                         formatter: (val) => val > 0 ? val : ''
                     }
                 },
                 scales: { 
-                    y: { beginAtZero: true, ticks: { color: '#000', font: { weight: 'bold' } } },
-                    x: { ticks: { color: '#000', font: { weight: 'bold' } } }
+                    y: { beginAtZero: true, ticks: { font: { size: 9 } } },
+                    x: { ticks: { font: { size: 9, weight: 'bold' } } }
                 }
             }
         });
     }
 
-    function guardarEnDB() { 
-        localStorage.setItem('meteo_apoyos_db', JSON.stringify(dbHistorial)); 
-    }
+    function guardarEnDB() { localStorage.setItem('meteo_apoyos_db', JSON.stringify(dbHistorial)); }
     
     function guardarFirmas() {
         for(let i=1; i<=4; i++) {
@@ -288,13 +262,13 @@
     function sumar(idx, m) { dbHistorial[anioActual][idx].meses[m]++; guardarEnDB(); render(); }
     
     function restar(idx, m) { 
-        if(dbHistorial[anioActual][idx].meses[m] > 0 && prompt("Clave de seguridad para restar:") === CLAVE_SEGURIDAD) {
+        if(dbHistorial[anioActual][idx].meses[m] > 0 && prompt("Clave de seguridad:") === CLAVE_SEGURIDAD) {
             dbHistorial[anioActual][idx].meses[m]--; guardarEnDB(); render(); 
         }
     }
     
     function eliminar(idx) {
-        if(prompt("Clave para eliminar registro:") === CLAVE_SEGURIDAD) {
+        if(prompt("Clave para eliminar:") === CLAVE_SEGURIDAD) {
             dbHistorial[anioActual].splice(idx, 1); guardarEnDB(); render();
         }
     }
@@ -312,7 +286,7 @@
                 dbHistorial = JSON.parse(ev.target.result); 
                 guardarEnDB(); 
                 actualizarInterfaz(); 
-            } catch(e) { alert("Error al cargar el archivo"); }
+            } catch(e) { alert("Error al cargar"); }
         };
         reader.readAsText(e.target.files[0]);
     }
@@ -332,11 +306,11 @@
             item.meses.forEach((valor, m) => {
                 sumaMensual[m] += valor;
                 celdas += `<td>
-                    <div class="no-print" style="display:flex; justify-content:center; gap:4px;">
-                        <span style="cursor:pointer; color:green" onclick="sumar(${idx},${m})">▲</span>
-                        <span style="cursor:pointer; color:red" onclick="restar(${idx},${m})">▼</span>
+                    <div class="no-print" style="display:flex; justify-content:center; gap:2px;">
+                        <span style="cursor:pointer; color:green; font-size:10px;" onclick="sumar(${idx},${m})">▲</span>
+                        <span style="cursor:pointer; color:red; font-size:10px;" onclick="restar(${idx},${m})">▼</span>
                     </div>
-                    <span style="font-weight:900;">${valor === 0 ? '-' : valor}</span>
+                    <span>${valor === 0 ? '-' : valor}</span>
                 </td>`;
             });
             fila.innerHTML = celdas + `<td style="font-weight:900; background:#f9f9f9">${totalU}</td>
