@@ -188,7 +188,9 @@
 
 <script>
     const CLAVE_SEGURIDAD = "123";
-    let dbHistorial = JSON.parse(localStorage.getItem('meteo_apoyos_db')) || {};
+    const WORKER_URL = "https://api-meteo-apoyos.salaspancho16.workers.dev";
+    
+    let dbHistorial = {};
     let anioActual = "2026";
     let miGrafico;
 
@@ -196,15 +198,26 @@
 
     Chart.register(ChartDataLabels);
 
-    window.onload = function() {
+    window.onload = async function() {
         anioActual = document.getElementById("inputAnio").value;
         for(let i=1; i<=4; i++) {
             document.getElementById(`f_izq_${i}`).value = localStorage.getItem(`f_izq_apoyos_${i}`) || "";
             document.getElementById(`f_der_${i}`).value = localStorage.getItem(`f_der_apoyos_${i}`) || "";
         }
         inicializarGrafico();
+        await cargarDesdeNube();
         actualizarInterfaz();
     };
+
+    async function cargarDesdeNube() {
+        try {
+            const respuesta = await fetch(WORKER_URL);
+            dbHistorial = await respuesta.json();
+        } catch (error) {
+            console.error("Error conectando con la base de datos:", error);
+            dbHistorial = {};
+        }
+    }
 
     function inicializarGrafico() {
         const ctx = document.getElementById('graficoMensual').getContext('2d');
@@ -231,7 +244,12 @@
         });
     }
 
-    function guardarEnDB() { localStorage.setItem('meteo_apoyos_db', JSON.stringify(dbHistorial)); }
+    function guardarEnDB() { 
+        fetch(WORKER_URL, {
+            method: 'POST',
+            body: JSON.stringify(dbHistorial)
+        }).catch(err => console.error("Error al guardar en la nube:", err));
+    }
     
     function guardarFirmas() {
         for(let i=1; i<=4; i++) {
